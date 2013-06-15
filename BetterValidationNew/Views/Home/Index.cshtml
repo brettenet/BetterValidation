@@ -1,0 +1,99 @@
+﻿@model BetterValidation.Models.Reservation
+@{
+    ViewBag.Title = "ResIt!";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<header>
+    <div class="content-wrapper">
+        <div class="float-left">
+            <p class="site-title">
+                <a href="~/">ResIt</a>
+            </p>
+        </div>
+    </div>
+</header>
+<div id="body">
+    <section class="featured">
+        <div class="content-wrapper">
+            <hgroup class="title">
+                <h1>Welcome To ResIt!</h1>
+                <h2>A generally useless reservation system</h2>
+            </hgroup>
+            <p>
+                ResIt allows you to create a reservation. Your reservation will not be saved to any kind of database. You will not be
+                able to edit your reservation. But you will be able to see validation messages. :-)
+            </p>
+            <p>
+                To learn more about FluentValidation Visit
+                <a href="http://fluentvalidation.codeplex.com/" title="FluentValidation">FluentValidation</a>.
+                <br />
+                <br />
+                To learn more about Me Visit <a href="http://www.brette.net" title="Brette.Net">Brette.Net Consulting</a>.
+            </p>
+        </div>
+    </section>
+    <section class="content-wrapper main-content clear-fix">
+        <h2>Create A New Reservation</h2>
+        <form id="createReservationForm">
+            <fieldset>
+                <legend>Reservation</legend>
+
+                <div class="editor-label">
+                    <label class="required" for="FirstName">
+                        First Name</label>
+                </div>
+                <div class="editor-field">
+                    <input class="text-box single-line" id="FirstName" name="FirstName" type="text" />
+                    <span class="field-validation-valid" data-valmsg-for="FirstName" data-valmsg-replace="true" />
+                </div>
+                <div class="editor-label">
+                    <label class="required" for="LastName">
+                        Last Name</label>
+                </div>
+                <div class="editor-field">
+                    <input class="text-box single-line" id="LastName" name="LastName" type="text" />
+                    <span class="field-validation-valid" data-valmsg-for="LastName" data-valmsg-replace="true" />
+                </div>
+                <div class="editor-label">
+                    <label class="required" for="Date">
+                        Date</label>
+                </div>
+                <div class="editor-field">
+                    <input class="text-box single-line" id="Date" name="Date" type="date" />
+                    <span class="field-validation-valid" data-valmsg-for="Date" data-valmsg-replace="true" />
+                </div>
+
+                <input type="button" id="cancelButton" value="Cancel" />
+                <input type="submit" id="saveButton" value="Save" />
+            </fieldset>
+        </form>
+    </section>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        $('#createReservationForm').submit(function (submitEvent) {
+            submitEvent.preventDefault();
+            var form = $('#createReservationForm');
+            $.validator.unobtrusive.parse(form);
+            if (form.valid()) {
+                $.ajax({
+                    url: "api/Reservation/Create",
+                    data: $("form").serialize(),
+                    type: "POST",
+                    statusCode: {
+                        200: function () {
+                            clearErrors($('#createReservationForm'));
+                            alert("You created a reservation");
+                        },
+                        400: function (response) {
+                            var validationErrors = $.parseJSON(response.responseText);
+                            $.each(validationErrors.ModelState, function (i, ival) {
+                                remoteErrors(form, i, ival);
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}
